@@ -352,6 +352,7 @@
     <Button
         android:id="@+id/button2"
         style="@style/Widget.MaterialComponents.TimePicker.Button"
+        android:textSize="@dimen/buttons_text_size"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:backgroundTint="@color/number_buttons_color"
@@ -403,7 +404,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/buttonDot"
         app:layout_constraintTop_toBottomOf="@id/buttonDel"
-        app:layout_constraintVertical_weight="2.05" />
+        app:layout_constraintVertical_weight="2.055" />
 
     <Button
         android:id="@+id/buttonDot"
