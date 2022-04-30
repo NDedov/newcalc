@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="main_screen_text_size">48sp</dimen>
-    <dimen name="button_margin">0dp</dimen>
+    <dimen name="main_screen_text_size">64sp</dimen>
     <dimen name="button_left_mar">2dp</dimen>
     <dimen name="button_right_mar">2dp</dimen>
     <dimen name="button_top_mar">2dp</dimen>
     <dimen name="button_bottom_mar">2dp</dimen>
-    <dimen name="buttons_text_size">20sp</dimen>
     <dimen name="main_screen_padding">8dp</dimen>
     <dimen name="operands_text_size">24sp</dimen>
-    <dimen name="memory_text_size">16sp</dimen>
+    <dimen name="memory_text_size">24sp</dimen>
+    <dimen name="buttons_number_text_size">24sp</dimen>
+    <dimen name="buttons_memory_text_size">24sp</dimen>
+    <dimen name="buttons_action_text_size">24sp</dimen>
+    <dimen name="icon_left_arrow">28dp</dimen>
+    <dimen name="main_screen_margin">2dp</dimen>
+
 </resources>

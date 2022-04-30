@@ -2,6 +2,7 @@ package com.example.newcalc;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -19,11 +20,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     TextView memoryCalcScreen; //  для отображения факта наличия числа в памяти
     TextView operandsCalcScreen; // текущий список операндов и операций
 
+    Typeface tf;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getSupportActionBar().hide();
         setContentView(R.layout.activity_main);
+        tf = Typeface.createFromAsset(getAssets(),"fonts/Digital.ttf");
         initViews();
     }
 
@@ -31,6 +35,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mainCalcScreen = findViewById(R.id.textViewCalc);
         memoryCalcScreen = findViewById(R.id.textViewMemory);
         operandsCalcScreen = findViewById(R.id.textViewOperands);
+
+        mainCalcScreen.setText("123.45");
+        memoryCalcScreen.setText("M");
+        operandsCalcScreen.setText("123.45 + 35353 - 35353");
+
+        mainCalcScreen.setTypeface(tf);
+        memoryCalcScreen.setTypeface(tf);
+        operandsCalcScreen.setTypeface(tf);
+
+
         button0 = findViewById(R.id.button0);
         button1 = findViewById(R.id.button1);
         button2 = findViewById(R.id.button2);
