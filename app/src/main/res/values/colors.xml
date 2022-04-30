@@ -11,4 +11,9 @@
     <color name="action_buttons_color">#00BCD4</color>
     <color name="number_buttons_color">#547FA1</color>
     <color name="buttons_text_color">#FFFFFF</color>
+    <color name="buttons_text_color_night">#FF000000</color>
+    <color name="mem_buttons_color_night">#559BD3</color>
+    <color name="action_buttons_color_night">#6BC4CF</color>
+    <color name="number_buttons_color_night">#4A677E</color>
+
 </resources>
