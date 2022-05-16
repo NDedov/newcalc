@@ -49,6 +49,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (bundle == null)
             return;
         String textApplication = bundle.getString(KEY_APPLICATION);
+        if (textApplication == null)
+            return;
         Toast.makeText(this, "Меня вызвал: " + textApplication,Toast.LENGTH_LONG).show();
     }
 
@@ -143,6 +145,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * вывод на экран всех полей калькулятора
      */
     public void printCalc(){
+        if (mainCalcScreenString.toString().length()<13)
+            mainCalcScreen.setTextSize(52);
+
+        else
+            if (mainCalcScreenString.toString().length()<17)
+                mainCalcScreen.setTextSize(40);
+            else
+                mainCalcScreen.setTextSize(32);
+
+
         memoryCalcScreen.setText(memory.toString());
         mainCalcScreen.setText(mainCalcScreenString.toString());
         operandsCalcScreen.setText(calc.toString());
@@ -187,21 +199,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case (R.id.buttonMM):
                 if (!mainCalcScreenString.isError())//проверка если на экране калькулятора ошибка
-                    memory.memoryMinus(mainCalcScreenString.toFloat());
+                    memory.memoryMinus(mainCalcScreenString.toDouble());
                 break;
             case (R.id.buttonMP):
                 if (!mainCalcScreenString.isError())//проверка если на экране калькулятора ошибка
-                    memory.memoryPlus(mainCalcScreenString.toFloat());
+                    memory.memoryPlus(mainCalcScreenString.toDouble());
                 break;
             case (R.id.buttonMR):
                 if (memory.isMemory()){
                     mainCalcScreenString.clear();
-                    mainCalcScreenString.setFloat(memory.getNum());
+                    mainCalcScreenString.setDouble(memory.getNum());
                 }
                 break;
             case (R.id.buttonC):
                 try {
-                    if (mainCalcScreenString.toFloat() == 0) // если на основном экране 0 - очищаем
+                    if (mainCalcScreenString.toDouble() == 0) // если на основном экране 0 - очищаем
                         // операции
                         calc.clear();
                     mainCalcScreenString.clear();
@@ -238,13 +250,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 calc.addOperand(mainCalcScreenString.toString());
                 mainCalcScreenString.clear();
                 try{
-                    if (calc.makeCalc() == Float.POSITIVE_INFINITY ||//если выходим за предел float
-                            calc.makeCalc() == Float.NEGATIVE_INFINITY) {
+                    if (calc.makeCalc() == Double.POSITIVE_INFINITY ||//если выходим за предел float
+                            calc.makeCalc() == Double.NEGATIVE_INFINITY) {
                         calc.clear();
                         mainCalcScreenString.setError();
                         break;
                     }
-                    mainCalcScreenString.setFloat(calc.makeCalc());
+                    mainCalcScreenString.setDouble(calc.makeCalc());
                 }
                 catch (ArithmeticException e){//ошибка математической операции
                     calc.clear();

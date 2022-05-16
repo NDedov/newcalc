@@ -78,6 +78,7 @@
             android:paddingEnd="@dimen/main_screen_padding"
             android:paddingBottom="@dimen/main_screen_padding"
             android:textSize="@dimen/main_screen_text_size"
+            android:textIsSelectable="true"
             app:layout_constraintBottom_toTopOf="@+id/buttonMC" />
 
     </LinearLayout>

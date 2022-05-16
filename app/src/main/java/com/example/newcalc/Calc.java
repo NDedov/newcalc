@@ -1,5 +1,7 @@
 package com.example.newcalc;
 import androidx.annotation.NonNull;
+
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -14,13 +16,13 @@ class Operands{
 
 // класс для хранения чисел
 class Number extends Operands{
-    float num;
+    double num;
 
-    public Number(float num) {
+    public Number(double num) {
         this.num = num;
         this.type = "number";
     }
-    public float getNum() {
+    public double getNum() {
         return num;
     }
 
@@ -29,7 +31,7 @@ class Number extends Operands{
     public String toString() {
         if (num == (int) num)
             return Integer.toString((int) num);
-        return Float.toString(num);
+        return Double.toString(num);
     }
 }
 
@@ -49,7 +51,7 @@ class Operation extends Operands{
 
 //основной класс для хранения текущего состояния строки операций и чисел калькулятора и для
 // выполнения вычислений с ними
-public class Calc{
+public class Calc implements Constants{
 
     ArrayList<Operands> listOperations;// хранятся текущие числа и операции c чередованием
     // пример: "1", "+", "3", "*"
@@ -65,7 +67,7 @@ public class Calc{
     public void addOperand(String operand){
         String[] possibleOperations = {"+", "-", "*", "/", "%"};
         try {
-            float num_tmp = Float.parseFloat(operand);// конвертируем входную строку в число
+            double num_tmp = Double.parseDouble(operand);// конвертируем входную строку в число
             if (listOperations.isEmpty())//если список пустой
                 listOperations.add(new Number(num_tmp));// добавляем новый объект типа число
             else { //если список не пустой
@@ -109,9 +111,9 @@ public class Calc{
      * @return результат вычисления
      * @throws ArithmeticException при ошибке в вычислении, например деление на 0
      */
-    public float makeCalc() throws ArithmeticException {
+    public double makeCalc() throws ArithmeticException {
         if (listOperations.size() != 0){
-            float result = ((Number) listOperations.get(0)).getNum();// в результат записываем
+            double result = ((Number) listOperations.get(0)).getNum();// в результат записываем
             // первое число
             for (int i = 1; i < listOperations.size(); i++) {// проходим по списку, выполняем операции
                 if (listOperations.get(i) instanceof Operation && i != listOperations.size() - 1){
@@ -132,7 +134,13 @@ public class Calc{
                     }
                 }
             }
-            return result;
+            DecimalFormat decimalFormat = new DecimalFormat();
+            decimalFormat.setMaximumFractionDigits(MAX_LENGTH_AFTER_POINT);
+            decimalFormat.setGroupingSize(0);
+
+            String strTmp = decimalFormat.format(result);
+            strTmp = strTmp.replace(',','.');
+            return Double.parseDouble(strTmp);
         }
     return 0;
     }
@@ -211,10 +219,10 @@ class MainCalcScreenString {
     }
 
 
-    public float toFloat(){
+    public double toDouble(){
         if (str.length() == 0)
             return 0;
-        return Float.parseFloat(str.toString());
+        return Double.parseDouble(str.toString());
     }
 
     @NonNull
@@ -232,13 +240,13 @@ class MainCalcScreenString {
      * Устанавливает значение строки в соответствии с числом на входе метода
      * @param num число
      */
-    public void setFloat(float num){
+    public void setDouble(double num){
         //DecimalFormat df = new DecimalFormat("#.######");
         if ((int)num == num){
             str = new StringBuilder(Integer.toString((int) num));
         }
         else {
-            str = new StringBuilder(Float.toString(num));
+            str = new StringBuilder(Double.toString(num));
         }
     }
 
@@ -250,7 +258,7 @@ class MainCalcScreenString {
 
 //класс для работы с Memory
 class Memory {
-    private float num;
+    private double num;
     private boolean isMemory;
 
     public Memory() {
@@ -258,7 +266,7 @@ class Memory {
         num = 0;
     }
 
-    public void memoryPlus(float num){
+    public void memoryPlus(double num){
         isMemory = true;
         this.num += num;
     }
@@ -272,7 +280,7 @@ class Memory {
             return "";
     }
 
-    public void memoryMinus(float num){
+    public void memoryMinus(double num){
         isMemory = true;
         this.num -= num;
     }
@@ -281,7 +289,7 @@ class Memory {
         return isMemory;
     }
 
-    public Float getNum() {
+    public Double getNum() {
         if (isMemory)
             return num;
         return null;
