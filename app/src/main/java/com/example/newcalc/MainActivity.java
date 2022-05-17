@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         tf = Typeface.createFromAsset(getAssets(),"fonts/Digital.ttf");
         initViews();
         initCalc();
+        int x = 1;
 
         //обработка вызова из другого приложения
         Intent intent = getIntent();
