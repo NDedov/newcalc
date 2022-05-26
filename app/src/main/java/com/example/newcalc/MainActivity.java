@@ -1,50 +1,75 @@
 package com.example.newcalc;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+import java.util.Objects;
+import java.util.function.DoubleUnaryOperator;
+
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, Constants {
 
     Button button0, button1, button2, button3, button4, button5, button6, button7, button8, button9;
     Button buttonMC, buttonMP, buttonMM, buttonMR;
     Button buttonMul, buttonDiv, buttonPlus, buttonMin;
     Button buttonC, buttonDel, buttonEq, buttonPer, buttonDot;
+    Button buttonTheme;
 
-    TextView mainCalcScreen; // число вводимое с клавиатуры калькулятора, вывод результата
+    TextView mainCalcScreen; // основной экран - число вводимое с клавиатуры, вывод результата
     TextView memoryCalcScreen; //  для отображения факта наличия числа в памяти
     TextView operandsCalcScreen; // текущий список операндов и операций
 
     Typeface tf;
 
+    MainCalcScreenString mainCalcScreenString;//класс для работы с основным экраном калькулятора
+    Calc calc; // класс для хранения обработки списка чисел и операндов
+    Memory memory; // класс для работы с памятью калькулятора
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getSupportActionBar().hide();
+        Objects.requireNonNull(getSupportActionBar()).hide();
         setContentView(R.layout.activity_main);
         tf = Typeface.createFromAsset(getAssets(),"fonts/Digital.ttf");
         initViews();
+        initCalc();
+        int x = 1;
+
+        //обработка вызова из другого приложения
+        Intent intent = getIntent();
+        Bundle bundle = intent.getExtras();
+        if (bundle == null)
+            return;
+        String textApplication = bundle.getString(KEY_APPLICATION);
+        if (textApplication == null)
+            return;
+        Toast.makeText(this, "Меня вызвал: " + textApplication,Toast.LENGTH_LONG).show();
+    }
+
+    private void initCalc() {// создаем объекты для работы калькультора
+        mainCalcScreenString = new MainCalcScreenString(MAX_LENGTH_CALC_DIGITS);
+        calc = new Calc();
+        memory = new Memory();
+        mainCalcScreenString.addElement("0");
+        printCalc();
     }
 
     private void initViews(){
         mainCalcScreen = findViewById(R.id.textViewCalc);
         memoryCalcScreen = findViewById(R.id.textViewMemory);
         operandsCalcScreen = findViewById(R.id.textViewOperands);
-
-        mainCalcScreen.setText("123.45");
-        memoryCalcScreen.setText("M");
-        operandsCalcScreen.setText("123.45 + 35353 - 35353");
-
         mainCalcScreen.setTypeface(tf);
         memoryCalcScreen.setTypeface(tf);
         operandsCalcScreen.setTypeface(tf);
-
-
         button0 = findViewById(R.id.button0);
         button1 = findViewById(R.id.button1);
         button2 = findViewById(R.id.button2);
@@ -68,6 +93,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         buttonEq = findViewById(R.id.buttonEq);
         buttonPer = findViewById(R.id.buttonPer);
         buttonDot = findViewById(R.id.buttonDot);
+        buttonTheme = findViewById(R.id.buttonTheme);
         initOnClickListeners();
     }
 
@@ -95,81 +121,175 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         buttonEq.setOnClickListener(this);
         buttonPer.setOnClickListener(this);
         buttonDot.setOnClickListener(this);
+        buttonTheme.setOnClickListener(this);
     }
 
+    //сохранение объектов при уничтожении основной активити
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(KEY_SAVE_CALC, new SaveObjects(mainCalcScreenString, calc, memory));
+    }
+
+    //восстановление объектов при пересоздании основной активити
+    @Override
+    public void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        SaveObjects saveObjects = savedInstanceState.getParcelable(KEY_SAVE_CALC);
+        memory = saveObjects.getMemory();
+        calc = saveObjects.getCalc();
+        mainCalcScreenString = saveObjects.getMainCalcScreenString();
+        printCalc();
+    }
+
+    /**
+     * вывод на экран всех полей калькулятора
+     */
+    public void printCalc(){
+        if (mainCalcScreenString.toString().length()<13)
+            mainCalcScreen.setTextSize(52);
+
+        else
+            if (mainCalcScreenString.toString().length()<17)
+                mainCalcScreen.setTextSize(40);
+            else
+                mainCalcScreen.setTextSize(32);
+
+
+        memoryCalcScreen.setText(memory.toString());
+        mainCalcScreen.setText(mainCalcScreenString.toString());
+        operandsCalcScreen.setText(calc.toString());
+    }
+
+    //обработчик нажатий всех кнопок
     @Override
     public void onClick(View view) {
         switch (view.getId()){
             case (R.id.button0):
-                Toast.makeText(this, "Нажали 0", Toast.LENGTH_SHORT).show();
+                mainCalcScreenString.addElement("0");
                 break;
             case (R.id.button1):
-                Toast.makeText(this, "Нажали 1", Toast.LENGTH_SHORT).show();
+                mainCalcScreenString.addElement("1");
                 break;
             case (R.id.button2):
-                Toast.makeText(this, "Нажали 2", Toast.LENGTH_SHORT).show();
+                mainCalcScreenString.addElement("2");
                 break;
             case (R.id.button3):
-                Toast.makeText(this, "Нажали 3", Toast.LENGTH_SHORT).show();
+                mainCalcScreenString.addElement("3");
                 break;
             case (R.id.button4):
-                Toast.makeText(this, "Нажали 4", Toast.LENGTH_SHORT).show();
+                mainCalcScreenString.addElement("4");
                 break;
             case (R.id.button5):
-                Toast.makeText(this, "Нажали 5", Toast.LENGTH_SHORT).show();
+                mainCalcScreenString.addElement("5");
                 break;
             case (R.id.button6):
-                Toast.makeText(this, "Нажали 6", Toast.LENGTH_SHORT).show();
+                mainCalcScreenString.addElement("6");
                 break;
             case (R.id.button7):
-                Toast.makeText(this, "Нажали 7", Toast.LENGTH_SHORT).show();
+                mainCalcScreenString.addElement("7");
                 break;
             case (R.id.button8):
-                Toast.makeText(this, "Нажали 8", Toast.LENGTH_SHORT).show();
+                mainCalcScreenString.addElement("8");
                 break;
             case (R.id.button9):
-                Toast.makeText(this, "Нажали 9", Toast.LENGTH_SHORT).show();
+                mainCalcScreenString.addElement("9");
                 break;
             case (R.id.buttonMC):
-                Toast.makeText(this, "Нажали MC", Toast.LENGTH_SHORT).show();
+                memory.clear();
                 break;
             case (R.id.buttonMM):
-                Toast.makeText(this, "Нажали M-", Toast.LENGTH_SHORT).show();
+                if (!mainCalcScreenString.isError())//проверка если на экране калькулятора ошибка
+                    memory.memoryMinus(mainCalcScreenString.toDouble());
                 break;
             case (R.id.buttonMP):
-                Toast.makeText(this, "Нажали M+", Toast.LENGTH_SHORT).show();
+                if (!mainCalcScreenString.isError())//проверка если на экране калькулятора ошибка
+                    memory.memoryPlus(mainCalcScreenString.toDouble());
                 break;
             case (R.id.buttonMR):
-                Toast.makeText(this, "Нажали MR", Toast.LENGTH_SHORT).show();
+                if (memory.isMemory()){
+                    mainCalcScreenString.clear();
+                    mainCalcScreenString.setDouble(memory.getNum());
+                }
                 break;
             case (R.id.buttonC):
-                Toast.makeText(this, "Нажали C", Toast.LENGTH_SHORT).show();
+                try {
+                    if (mainCalcScreenString.toDouble() == 0) // если на основном экране 0 - очищаем
+                        // операции
+                        calc.clear();
+                    mainCalcScreenString.clear();
+                }
+                catch (NumberFormatException e){
+                    calc.clear();
+                    mainCalcScreenString.clear();
+                }
                 break;
             case (R.id.buttonDel):
-                Toast.makeText(this, "Нажали Del", Toast.LENGTH_SHORT).show();
+                mainCalcScreenString.delLast();
                 break;
             case (R.id.buttonPlus):
-                Toast.makeText(this, "Нажали +", Toast.LENGTH_SHORT).show();
+                calc.addOperand(mainCalcScreenString.toString());
+                calc.addOperand("+");
+                mainCalcScreenString.clear();
                 break;
             case (R.id.buttonMin):
-                Toast.makeText(this, "Нажали -", Toast.LENGTH_SHORT).show();
+                calc.addOperand(mainCalcScreenString.toString());
+                calc.addOperand("-");
+                mainCalcScreenString.clear();
                 break;
             case (R.id.buttonDiv):
-                Toast.makeText(this, "Нажали ÷", Toast.LENGTH_SHORT).show();
+                calc.addOperand(mainCalcScreenString.toString());
+                calc.addOperand("/");
+                mainCalcScreenString.clear();
                 break;
             case (R.id.buttonMul):
-                Toast.makeText(this, "Нажали ×", Toast.LENGTH_SHORT).show();
+                calc.addOperand(mainCalcScreenString.toString());
+                calc.addOperand("*");
+                mainCalcScreenString.clear();
                 break;
-            case (R.id.buttonEq):
-                Toast.makeText(this, "Нажали =", Toast.LENGTH_SHORT).show();
+            case (R.id.buttonEq):// кнопка равно
+                calc.addOperand(mainCalcScreenString.toString());
+                mainCalcScreenString.clear();
+                try{
+                    if (calc.makeCalc() == Double.POSITIVE_INFINITY ||//если выходим за предел float
+                            calc.makeCalc() == Double.NEGATIVE_INFINITY) {
+                        calc.clear();
+                        mainCalcScreenString.setError();
+                        break;
+                    }
+                    mainCalcScreenString.setDouble(calc.makeCalc());
+                }
+                catch (ArithmeticException e){//ошибка математической операции
+                    calc.clear();
+                    mainCalcScreenString.setError();
+                }
+                calc.clear();
                 break;
             case (R.id.buttonPer):
-                Toast.makeText(this, "Нажали %", Toast.LENGTH_SHORT).show();
+                calc.addOperand(mainCalcScreenString.toString());
+                calc.addOperand("%");
+                mainCalcScreenString.clear();
                 break;
             case (R.id.buttonDot):
-                Toast.makeText(this, "Нажали .", Toast.LENGTH_SHORT).show();
+                mainCalcScreenString.addElement(".");
+                break;
+            case (R.id.buttonTheme):
+                Intent runSettings = new Intent(this, SettingsActivity.class);
+                runSettings.putExtra(THEME, AppCompatDelegate.getDefaultNightMode());
+                startActivityForResult(runSettings, REQUEST_CODE_SETTING_ACTIVITY);
                 break;
         }
+       printCalc();
+    }
 
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    { //получение результата только из активити, с установлением темы
+        if (requestCode != REQUEST_CODE_SETTING_ACTIVITY) {
+            super.onActivityResult(requestCode, resultCode, data);
+            return;
+        }
+        if (resultCode == RESULT_OK)
+            AppCompatDelegate.setDefaultNightMode(data.getIntExtra(THEME,
+                    AppCompatDelegate.getDefaultNightMode()));
     }
 }

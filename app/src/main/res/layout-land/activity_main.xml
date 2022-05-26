@@ -23,23 +23,44 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_weight="4">
 
-        <TextView
-            android:id="@+id/textViewMemory"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_weight="1"
+            android:orientation="horizontal">
 
-            android:gravity="end|top"
-            android:paddingStart="@dimen/main_screen_padding"
-            android:paddingEnd="@dimen/main_screen_padding"
-            android:paddingTop="@dimen/main_screen_padding"
-            android:textSize="@dimen/memory_text_size"
-            app:layout_constraintBottom_toTopOf="@+id/buttonMC" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonTheme"
+                android:theme="@style/ButtonThemeStyle"
+                android:textAllCaps="false"
+                android:layout_marginStart="@dimen/theme_button_margin_start"
+                android:layout_marginTop="@dimen/theme_button_margin_top"
+
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="4"
+
+                android:text="Theme"
+                tools:ignore="NestedWeights" />
+
+            <TextView
+                android:id="@+id/textViewMemory"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="end|top"
+                android:paddingStart="@dimen/main_screen_padding"
+                android:paddingTop="@dimen/main_screen_padding"
+                android:paddingEnd="@dimen/main_screen_padding"
+                android:textSize="@dimen/memory_text_size"
+                app:layout_constraintBottom_toTopOf="@+id/buttonMC" />
+
+        </LinearLayout>
 
         <TextView
             android:id="@+id/textViewOperands"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_weight="3"
             android:gravity="bottom|end"
             android:paddingStart="@dimen/main_screen_padding"
@@ -50,13 +71,14 @@
         <TextView
             android:id="@+id/textViewCalc"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_weight="2"
             android:gravity="end|bottom"
             android:paddingStart="@dimen/main_screen_padding"
             android:paddingEnd="@dimen/main_screen_padding"
             android:paddingBottom="@dimen/main_screen_padding"
             android:textSize="@dimen/main_screen_text_size"
+            android:textIsSelectable="true"
             app:layout_constraintBottom_toTopOf="@+id/buttonMC" />
 
     </LinearLayout>

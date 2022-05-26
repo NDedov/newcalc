@@ -1,10 +1,7 @@
 package com.example.newcalc;
-
-import android.os.Parcel;
-import android.os.Parcelable;
-
 import androidx.annotation.NonNull;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -14,11 +11,13 @@ class Operands{
     public String getType() {
         return type;
     }
+
 }
 
 // класс для хранения чисел
 class Number extends Operands{
     double num;
+
     public Number(double num) {
         this.num = num;
         this.type = "number";
@@ -26,18 +25,33 @@ class Number extends Operands{
     public double getNum() {
         return num;
     }
+
+    @NonNull
+    @Override
+    public String toString() {
+        if (num == (int) num)
+            return Integer.toString((int) num);
+        return Double.toString(num);
+    }
 }
 
 // класс для хранения операций
 class Operation extends Operands{
+
     public Operation(String type){
         this.type = type;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return type;
     }
 }
 
 //основной класс для хранения текущего состояния строки операций и чисел калькулятора и для
 // выполнения вычислений с ними
-public class Calc {
+public class Calc implements Constants{
 
     ArrayList<Operands> listOperations;// хранятся текущие числа и операции c чередованием
     // пример: "1", "+", "3", "*"
@@ -48,18 +62,12 @@ public class Calc {
 
     /**
      * Метод для добавления числа или операции в текущий список. Элементы чередуются. Первый может
-     * быть только число
-     * @param operand число или операция, допустимы {"+", "-", "*", "/", "%"}
-     * @return true если удалось внести, false если допущена какая либо ошибка
+     * быть только число. Допустимые операции, допустимы {"+", "-", "*", "/", "%"}
      */
-    public boolean addOperand(String operand){
-        boolean isNum = false;
-        boolean isOperation = false;
+    public void addOperand(String operand){
         String[] possibleOperations = {"+", "-", "*", "/", "%"};
-
         try {
             double num_tmp = Double.parseDouble(operand);// конвертируем входную строку в число
-            isNum = true;
             if (listOperations.isEmpty())//если список пустой
                 listOperations.add(new Number(num_tmp));// добавляем новый объект типа число
             else { //если список не пустой
@@ -73,7 +81,6 @@ public class Calc {
         catch (NumberFormatException e){ //на входе не число
             if (Arrays.asList(possibleOperations).contains(operand) && !listOperations.isEmpty()){
                 // если на входе допустимая операция и список не пустой
-                isOperation = true;
                 if (listOperations.get(listOperations.size()-1) instanceof Number)//если последний
                     //элемент в списке число
                     listOperations.add(new Operation(operand));//добавляем операцию
@@ -81,13 +88,20 @@ public class Calc {
                     listOperations.set(listOperations.size()-1, new Operation(operand));//заменяем операцию
             }
         }
-     return isNum || isOperation;
     }
 
+    public void clear(){
+        listOperations.clear();
+    }
 
     @NonNull
     public String toString(){
-        // todo сделать возврат текущего списка операция в формате строки
+        StringBuilder tmp = new StringBuilder();
+        if (listOperations.size() > 0){
+            for (Operands item: listOperations)
+                tmp.append(item.toString());
+            return tmp.toString();
+        }
         return "";
     }
 
@@ -99,10 +113,8 @@ public class Calc {
      */
     public double makeCalc() throws ArithmeticException {
         if (listOperations.size() != 0){
-
             double result = ((Number) listOperations.get(0)).getNum();// в результат записываем
             // первое число
-
             for (int i = 1; i < listOperations.size(); i++) {// проходим по списку, выполняем операции
                 if (listOperations.get(i) instanceof Operation && i != listOperations.size() - 1){
                     if (listOperations.get(i).getType().equals("+"))
@@ -122,67 +134,106 @@ public class Calc {
                     }
                 }
             }
-            return result;
+            DecimalFormat decimalFormat = new DecimalFormat();
+            decimalFormat.setMaximumFractionDigits(MAX_LENGTH_AFTER_POINT);
+            decimalFormat.setGroupingSize(0);
+
+            String strTmp = decimalFormat.format(result);
+            strTmp = strTmp.replace(',','.');
+            return Double.parseDouble(strTmp);
         }
     return 0;
     }
 }
 
 // класс для хранения и обработки значений выводимых на основной экран калькулятора
-class MainCalcScreenString{
+class MainCalcScreenString {
+
     StringBuilder str;// строка для хранения основного экрана калькулятора
     int maxLen;// максимальная длина строки
+    boolean isError;
+
+    public boolean isError() {
+        return isError;
+    }
 
     public MainCalcScreenString(int maxLen) {
-        str = new StringBuilder("");
+        str = new StringBuilder();
         this.maxLen = maxLen;
+        isError = false;
+    }
+
+    /**
+     * удаляет последний сивол в строке, если символ один, то заменяет его на 0
+     */
+    public void delLast(){
+        if (isError){
+            str = new StringBuilder();
+            isError = false;
+            return;
+        }
+        if (!str.toString().equals("")) {
+            if (str.length() > 1)
+                str.deleteCharAt(str.length() - 1);
+            else
+                str = new StringBuilder();
+        }
     }
 
     /** метод для добавления элементов в строку экрана калькулятора
      *
      * @param element цифра или точка
-     * @return строку калькулятора, если удалось добавить то новое значение, если нет, то старое
+     *
      */
-    public String addElement(String element){
+    public void addElement(String element){
+
+        if (isError){
+            str = new StringBuilder();
+            isError = false;
+        }
 
         if (str.length() < maxLen){
-            if (".".equals(element) && str.indexOf(element)==-1){//если на входе "точка" и ее еще нет в строке
+            if (".".equals(element) && str.indexOf(element)==-1){//если на входе "точка" и ее
+                // еще нет в строке
                 if (str.length() == 0)
                     str.append("0.");
                 else
                     str.append(".");
-                return str.toString();
+                return;
             }
             if (str.indexOf(element)!=-1 && ".".equals(element)) // если на входе "точка"
                 // а она уже есть
-                return str.toString();
+                return;
 
             if (str.length() == 1 && "0".equals(element) && str.toString().equals("0"))// если
                 // добавляем нули к нулям
-                return str.toString();
+                return;
 
             if (str.length() == 1 && !"0".equals(element) && str.toString().equals("0")){//если был
                 // 0 в строке, а мы добавляем не 0
                 str.replace(0,1, element);
-                return str.toString();
+                return;
             }
             str.append(element);
         }
-        return str.toString();
     }
 
 
     public double toDouble(){
+        if (str.length() == 0)
+            return 0;
         return Double.parseDouble(str.toString());
     }
 
     @NonNull
     public String toString(){
+        if (str.length() == 0)
+            return "";
         return str.toString();
     }
 
     public void clear(){
-        str.setLength(0);
+        str = new StringBuilder();
     }
 
     /**
@@ -190,16 +241,23 @@ class MainCalcScreenString{
      * @param num число
      */
     public void setDouble(double num){
-        if (Double.toString(num).length() <= maxLen){
+        //DecimalFormat df = new DecimalFormat("#.######");
+        if ((int)num == num){
+            str = new StringBuilder(Integer.toString((int) num));
+        }
+        else {
             str = new StringBuilder(Double.toString(num));
         }
-        //todo что если количество символов больше чем maxLen
     }
 
+    public void setError(){
+        str = new StringBuilder("ERROR");
+        isError = true;
+    }
 }
 
 //класс для работы с Memory
-class Memory{
+class Memory {
     private double num;
     private boolean isMemory;
 
@@ -211,6 +269,15 @@ class Memory{
     public void memoryPlus(double num){
         isMemory = true;
         this.num += num;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        if (isMemory)
+            return "M";
+        else
+            return "";
     }
 
     public void memoryMinus(double num){
